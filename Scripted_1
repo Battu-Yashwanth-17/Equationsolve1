@@ -1,21 +1,11 @@
 const fs = require('fs');
 
-/**
- * Decode the value from a specific base.
- * @param {number} base - The base of the encoded value.
- * @param {string} value - The encoded value.
- * @returns {number} - Decoded value as an integer.
- */
+
 function decodeBaseValue(base, value) {
     return parseInt(value, base);
 }
 
-/**
- * Perform Lagrange Interpolation to calculate the constant term of the polynomial.
- * @param {Array} points - Array of points {x, y}.
- * @param {number} k - Number of points needed to determine the polynomial.
- * @returns {number} - The constant term of the polynomial.
- */
+
 function lagrangeInterpolation(points, k) {
     let constantTerm = 0;
 
@@ -37,11 +27,7 @@ function lagrangeInterpolation(points, k) {
     return constantTerm;
 }
 
-/**
- * Extracts data points and calculates the constant term for a single test case.
- * @param {Object} jsonData - Parsed JSON data for a single test case.
- * @returns {number} - The calculated constant term.
- */
+
 function findSecretConstant(jsonData) {
     const n = jsonData.keys.n;
     const k = jsonData.keys.k;
@@ -66,10 +52,7 @@ function findSecretConstant(jsonData) {
     return lagrangeInterpolation(points, k);
 }
 
-/**
- * Processes multiple test cases and prints the constant term for each.
- * @param {Array} testCases - Array of parsed JSON test case objects.
- */
+
 function processTestCases(testCases) {
     testCases.forEach((testCase, index) => {
         const result = findSecretConstant(testCase);
@@ -77,7 +60,7 @@ function processTestCases(testCases) {
     });
 }
 
-// Main execution: Read test cases from JSON files and process them
+
 try {
     const testCase1 = JSON.parse(fs.readFileSync('testcase1.json', 'utf8'));
     const testCase2 = JSON.parse(fs.readFileSync('testcase2.json', 'utf8'));
