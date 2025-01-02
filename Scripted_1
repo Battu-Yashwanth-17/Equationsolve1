@@ -1,12 +1,12 @@
 const fs = require('fs');
 
 
-function decodeBaseValue(base, value) {
+function deBaseValue(base, value) {
     return parseInt(value, base);
 }
 
 
-function lagrangeInterpolation(points, k) {
+function lagrangeValue(points, k) {
     let constantTerm = 0;
 
     for (let i = 0; i < k; i++) {
@@ -40,7 +40,7 @@ function findSecretConstant(jsonData) {
             const base = parseInt(jsonData[key].base);
             const value = jsonData[key].value;
             const x = parseInt(key); // 'key' represents the x-value
-            const y = decodeBaseValue(base, value); // Decode the y-value
+            const y = deBaseValue(base, value); // Decode the y-value
             points.push({ x, y });
         }
     });
@@ -49,7 +49,7 @@ function findSecretConstant(jsonData) {
     points.sort((a, b) => a.x - b.x);
 
     // Use the first k points to calculate the constant term
-    return lagrangeInterpolation(points, k);
+    return lagrangeValue(points, k);
 }
 
 
