@@ -1,0 +1,94 @@
+const fs = require('fs');
+
+/**
+ * Decode a value from a given base to decimal.
+ * @param {number} base - The numerical base of the value (e.g., 2 for binary).
+ * @param {string} value - The value encoded in the given base.
+ * @returns {number} - The decoded decimal value.
+ */
+function decodeValue(base, value) {
+    return parseInt(value, base);
+}
+
+/**
+ * Calculate the mean (average) of an array of numbers.
+ * @param {Array<number>} arr - Array of numbers.
+ * @returns {number} - The mean of the array.
+ */
+function calculateMean(arr) {
+    const sum = arr.reduce((acc, val) => acc + val, 0);
+    return sum / arr.length;
+}
+
+/**
+ * Calculate the standard deviation of an array of numbers.
+ * @param {Array<number>} arr - Array of numbers.
+ * @param {number} mean - The mean of the array.
+ * @returns {number} - The standard deviation of the array.
+ */
+function calculateStandardDeviation(arr, mean) {
+    const variance = arr.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / arr.length;
+    return Math.sqrt(variance);
+}
+
+/**
+ * Detect outliers in a dataset based on y-values.
+ * An outlier is any point where |y - mean| > 2 * stdDev.
+ * @param {Array<{x: number, y: number}>} points - Array of points with x and y coordinates.
+ * @returns {Array<{x: number, y: number}>} - Array of detected outliers.
+ */
+function detectOutliers(points) {
+    const yValues = points.map(point => point.y);
+
+    // Calculate mean and standard deviation of y-values
+    const mean = calculateMean(yValues);
+    const stdDev = calculateStandardDeviation(yValues, mean);
+
+    // Threshold for outlier detection
+    const threshold = 2;
+
+    // Filter points that are considered outliers
+    return points.filter(point => Math.abs(point.y - mean) > threshold * stdDev);
+}
+
+/**
+ * Read a JSON file, parse the data, and detect outliers in the dataset.
+ * @param {string} filename - The name of the JSON file to read.
+ */
+function findOutliersFromFile(filename) {
+    fs.readFile(filename, 'utf8', (err, data) => {
+        if (err) {
+            console.error("Error reading file:", err.message);
+            return;
+        }
+
+        try {
+            const jsonData = JSON.parse(data);
+            const { n, k } = jsonData.keys;
+
+            let points = [];
+
+            // Parse and decode the points from the JSON data
+            Object.keys(jsonData).forEach(key => {
+                if (key !== 'keys') {
+                    const base = parseInt(jsonData[key].base);
+                    const value = jsonData[key].value;
+                    const x = parseInt(key); // The x-coordinate is the object key
+                    const y = decodeValue(base, value); // Decode the y-coordinate
+
+                    points.push({ x, y });
+                }
+            });
+
+            // Detect outliers in the dataset
+            const outliers = detectOutliers(points);
+
+            console.log("Outliers detected:", outliers);
+        } catch (parseError) {
+            console.error("Error parsing JSON data:", parseError.message);
+        }
+    });
+}
+
+// Execute the function with the specified JSON file
+findOutliersFromFile('testcase2.json');
