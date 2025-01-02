@@ -1,14 +1,14 @@
 const fs = require('fs');
 
-function decodeValue(base, value) {
+function deValue1(base, value) {
     return parseInt(value, base);
 }
-function calculateMean(arr) {
+function Mean(arr) {
     const sum = arr.reduce((acc, val) => acc + val, 0);
     return sum / arr.length;
 }
 
-function calculateStandardDeviation(arr, mean) {
+function StandardDeviation(arr, mean) {
     const variance = arr.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / arr.length;
     return Math.sqrt(variance);
 }
@@ -18,8 +18,8 @@ function detectOutliers(points) {
     const yValues = points.map(point => point.y);
 
     // Calculate mean and standard deviation of y-values
-    const mean = calculateMean(yValues);
-    const stdDev = calculateStandardDeviation(yValues, mean);
+    const mean = Mean(yValues);
+    const stdDev = StandardDeviation(yValues, mean);
 
     // Threshold for outlier detection
     const threshold = 2;
@@ -48,7 +48,7 @@ function findOutliersFromFile(filename) {
                     const base = parseInt(jsonData[key].base);
                     const value = jsonData[key].value;
                     const x = parseInt(key); // The x-coordinate is the object key
-                    const y = decodeValue(base, value); // Decode the y-coordinate
+                    const y = deValue(base, value); // Decode the y-coordinate
 
                     points.push({ x, y });
                 }
