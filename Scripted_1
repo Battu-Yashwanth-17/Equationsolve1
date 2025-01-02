@@ -1,0 +1,90 @@
+const fs = require('fs');
+
+/**
+ * Decode the value from a specific base.
+ * @param {number} base - The base of the encoded value.
+ * @param {string} value - The encoded value.
+ * @returns {number} - Decoded value as an integer.
+ */
+function decodeBaseValue(base, value) {
+    return parseInt(value, base);
+}
+
+/**
+ * Perform Lagrange Interpolation to calculate the constant term of the polynomial.
+ * @param {Array} points - Array of points {x, y}.
+ * @param {number} k - Number of points needed to determine the polynomial.
+ * @returns {number} - The constant term of the polynomial.
+ */
+function lagrangeInterpolation(points, k) {
+    let constantTerm = 0;
+
+    for (let i = 0; i < k; i++) {
+        let xi = points[i].x;
+        let yi = points[i].y;
+        let li = 1;
+
+        for (let j = 0; j < k; j++) {
+            if (i !== j) {
+                let xj = points[j].x;
+                li *= -xj / (xi - xj);
+            }
+        }
+
+        constantTerm += yi * li;
+    }
+
+    return constantTerm;
+}
+
+/**
+ * Extracts data points and calculates the constant term for a single test case.
+ * @param {Object} jsonData - Parsed JSON data for a single test case.
+ * @returns {number} - The calculated constant term.
+ */
+function findSecretConstant(jsonData) {
+    const n = jsonData.keys.n;
+    const k = jsonData.keys.k;
+
+    const points = [];
+
+    // Extract points (x, y) from JSON data
+    Object.keys(jsonData).forEach(key => {
+        if (key !== 'keys') {
+            const base = parseInt(jsonData[key].base);
+            const value = jsonData[key].value;
+            const x = parseInt(key); // 'key' represents the x-value
+            const y = decodeBaseValue(base, value); // Decode the y-value
+            points.push({ x, y });
+        }
+    });
+
+    // Sort points by x-value for consistency
+    points.sort((a, b) => a.x - b.x);
+
+    // Use the first k points to calculate the constant term
+    return lagrangeInterpolation(points, k);
+}
+
+/**
+ * Processes multiple test cases and prints the constant term for each.
+ * @param {Array} testCases - Array of parsed JSON test case objects.
+ */
+function processTestCases(testCases) {
+    testCases.forEach((testCase, index) => {
+        const result = findSecretConstant(testCase);
+        console.log(`The constant term (c) for test case ${index + 1} is: ${result}`);
+    });
+}
+
+// Main execution: Read test cases from JSON files and process them
+try {
+    const testCase1 = JSON.parse(fs.readFileSync('testcase1.json', 'utf8'));
+    const testCase2 = JSON.parse(fs.readFileSync('testcase2.json', 'utf8'));
+
+    const testCases = [testCase1, testCase2];
+
+    processTestCases(testCases);
+} catch (error) {
+    console.error('Error reading or processing test cases:', error.message);
+}
